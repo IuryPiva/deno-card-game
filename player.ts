@@ -9,6 +9,10 @@ export class Player {
     return structuredClone(this.hand);
   }
 
+  get handSize() {
+    return this.hand.length;
+  }
+
   play() {
     return this.hand.pop();
   }
