@@ -37,6 +37,12 @@ export class Game {
       return winner;
     }, { i: -1, card: { value: 0 } });
 
-    this.players[winner.i].win();
+    this.players.forEach((player, i) => {
+      if (i == winner.i) player.handleVictory();
+      else player.handleLoss();
+    });
+  }
+
+  draw() {
   }
 }

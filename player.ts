@@ -1,9 +1,16 @@
 import { Card } from "./deck.ts";
+import { toNumberEmoji } from "./emoji.ts";
 
 export class Player {
   points = 0;
+  reaction = `😊`;
+  mark = ``;
 
   constructor(private hand: Card[]) {}
+
+  get emojiPoint() {
+    return toNumberEmoji(this.points);
+  }
 
   showHand(): typeof this.hand {
     return structuredClone(this.hand);
@@ -17,7 +24,19 @@ export class Player {
     return this.hand.pop();
   }
 
-  win() {
+  calmdown() {
+    this.reaction = `🙂`;
+  }
+
+  handleVictory() {
     this.points++;
+    this.reaction = `😝`;
+    this.mark = `✅`;
+  }
+
+  handleLoss() {
+    this.points++;
+    this.reaction = `😡`;
+    this.mark = `❌`;
   }
 }
