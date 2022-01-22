@@ -48,11 +48,10 @@ export class Deck<CardType extends Card> {
   cards: CardType[];
 
   constructor(
-    cardCreator: (value: number) => CardType = (value) =>
-      new Card(value) as CardType,
+    CardType: new (value: number) => CardType,
   ) {
     this.cards = Array.from({ length: 52 })
-      .map((_, i) => cardCreator(i + 1));
+      .map((_, i) => new CardType(i + 1));
   }
 
   shuffle() {
