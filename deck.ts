@@ -47,7 +47,10 @@ export class DrawableCard extends Card implements DrawableModel {
 export class Deck<CardType extends Card> {
   cards: CardType[];
 
-  constructor(cardCreator: (value: number) => CardType) {
+  constructor(
+    cardCreator: (value: number) => CardType = (value) =>
+      new Card(value) as CardType,
+  ) {
     this.cards = Array.from({ length: 52 })
       .map((_, i) => cardCreator(i + 1));
   }

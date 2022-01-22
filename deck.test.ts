@@ -14,7 +14,7 @@ Deno.test("Card", () => {
 });
 
 Deno.test("Deck", () => {
-  const deck = new Deck((value) => new Card(value));
+  const deck = new Deck();
 
   assertEquals(deck.cards.length, 52, "Deck should contain 52 cards");
 
