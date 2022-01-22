@@ -21,7 +21,7 @@ export class Game {
     if (playerCount < 2) {
       throw new Error("You need at least 2 players to play this game");
     }
-    console.log(PlayerType.name);
+
     const deck = new Deck(this.CardType);
 
     // I ALWAYS SHUFFLE TWICE IRL
