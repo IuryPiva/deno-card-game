@@ -4,52 +4,55 @@ import {
   assertEquals,
   assertNotEquals,
 } from "https://deno.land/std@0.122.0/testing/asserts.ts";
-import { deal, newCard, newDeck, shuffle } from "./deck.ts";
+import { Card, Deck } from "./deck.ts";
 
-Deno.test("newCard()", () => {
-  Array(52).forEach((_, i) => {
-    const card = newCard(undefined, i);
-    assertEquals(card.value, i + 1, "Cards value should be index + 1");
+Deno.test("Card", () => {
+  Array.from({ length: 52 }).forEach((_, i) => {
+    const card = new Card(i + 1);
+    assertEquals(card.value, i + 1, "Cards should hold their values");
   });
 });
 
-Deno.test("newDeck()", () => {
-  const deck = newDeck();
-  assertEquals(deck.length, 52, "Deck should contain 52 cards");
+Deno.test("Deck", () => {
+  const deck = new Deck((value) => new Card(value));
 
-  for (const card of deck) {
-    assert(
-      card.value > 0 && card.value < 53,
-      "Deck should contain cards between 1 and 52, included",
-    );
-  }
-});
+  assertEquals(deck.cards.length, 52, "Deck should contain 52 cards");
 
-Deno.test("shuffle()", () => {
-  const deck = newDeck();
-  const shuffled = shuffle();
+  const possibleCards = Array.from({ length: 52 }).map((_, i) => i + 1);
 
   assertArrayIncludes(
-    shuffled,
-    deck,
-    "shuffled deck should include all possible cards",
+    deck.cards.map((c) => c.value),
+    possibleCards,
+    "Deck should have all 52 different cards.",
+  );
+
+  const hand = deck.deal(1).next().value;
+  deck.shuffle();
+
+  assertEquals(
+    deck.cards.length,
+    52,
+    "Deck should contain 52 cards after shuffle.",
+  );
+
+  assertArrayIncludes(
+    deck.cards.map((c) => c.value),
+    possibleCards,
+    "Deck should have all 52 different cards after shuffling.",
   );
 
   assertNotEquals(
-    shuffle(),
-    shuffle(),
-    "shuffled deck should be diffent on each call",
+    hand,
+    deck.deal(1).next().value,
+    "Cards should be different after shuffling.",
   );
-});
 
-Deno.test("deal()", () => {
-  const shuffled = shuffle();
 
-  for (let i = 1; i <= shuffled.length; i++) {
-    const dealer = deal(shuffled, i);
-    const expectedHandSize = Math.floor(shuffled.length / i);
-
+  for (let i = 1; i <= possibleCards.length; i++) {
+    const dealer = deck.deal(i);
+    const expectedHandSize = Math.floor(possibleCards.length / i);
     let playersDelt = 0;
+
     for (const playerHand of dealer) {
       playersDelt++;
 
@@ -63,3 +66,4 @@ Deno.test("deal()", () => {
     assertEquals(playersDelt, i, "Should create a hand for each player");
   }
 });
+

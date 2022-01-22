@@ -1,29 +1,77 @@
-export type Card = { value: number };
+import {
+  bgBrightGreen,
+  bgBrightWhite,
+  black,
+  bold,
+} from "https://deno.land/std@0.122.0/fmt/colors.ts";
+import { DrawableModel } from "./drawable.ts";
 
-export const newCard = (_: unknown, i: number) => ({ value: i + 1 }) as Card;
-export const newDeck = () => Array.from({ length: 52 }, newCard);
-
-export function shuffle(): Card[] {
-  const deck = newDeck();
-  const shuffled: Card[] = [];
-
-  while (deck.length) {
-    const index = Math.floor(Math.random() * deck.length);
-    shuffled.push(...deck.splice(index, 1));
-  }
-
-  return shuffled;
+export class Card {
+  constructor(public value: number) {}
 }
 
-export function* deal(deck: Card[], playerCount = 2) {
-  const dealerDeck: Card[] = structuredClone(deck);
-  const handSize = Math.floor(deck.length / playerCount);
-  let playersDelt = 0;
+export class DrawableCard extends Card implements DrawableModel {
+  static get sprite() {
+    const props = {
+      card: "XX",
+      slot: "--",
+    };
 
-  while (playersDelt < playerCount) {
-    playersDelt++;
-    yield dealerDeck.splice(0, handSize);
+    const model = [
+      props.card,
+    ].join("\n");
+
+    return {
+      props,
+      model,
+    };
   }
 
-  return dealerDeck.splice(0, handSize);
+  sprite = DrawableCard.sprite;
+
+  draw(
+    options?: { highlightWinnerCard: boolean },
+  ) {
+    let cardDrawing = this.value.toString().padStart(2, "0");
+    cardDrawing = black(bold(cardDrawing));
+
+    if (options?.highlightWinnerCard) cardDrawing = bgBrightGreen(cardDrawing);
+    else cardDrawing = bgBrightWhite(cardDrawing);
+
+    const { props, model } = this.sprite;
+
+    return model.replace(props.card, cardDrawing);
+  }
+}
+
+export class Deck<CardType extends Card> {
+  cards: CardType[];
+
+  constructor(cardCreator: (value: number) => CardType) {
+    this.cards = Array.from({ length: 52 })
+      .map((_, i) => cardCreator(i + 1));
+  }
+
+  shuffle() {
+    const deck = structuredClone(this.cards);
+    this.cards = [];
+
+    while (deck.length) {
+      const index = Math.floor(Math.random() * deck.length);
+      this.cards.push(...deck.splice(index, 1));
+    }
+  }
+
+  *deal(playerCount = 2) {
+    const dealerDeck: CardType[] = structuredClone(this.cards);
+    const handSize = Math.floor(this.cards.length / playerCount);
+    let playersDelt = 0;
+
+    while (playersDelt < playerCount) {
+      playersDelt++;
+      yield dealerDeck.splice(0, handSize);
+    }
+
+    return dealerDeck.splice(0, handSize);
+  }
 }
