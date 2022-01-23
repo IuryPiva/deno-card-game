@@ -35,6 +35,9 @@ export class Game {
     }
   }
 
+  get roundsLeft() {
+    return Math.max(...this.players.map((p) => p.handSize));
+  }
   /**
    * Play a card for each player and sets the highest card played as winner
    */
@@ -205,7 +208,7 @@ export class DrawableGame extends Game implements Drawable {
       "",
       this.drawCardsPlayed(),
       "",
-      `Cards left: ${this.players[0].handSize}`,
+      `Cards left: ${this.roundsLeft}`,
     ].join(
       "\n",
     );

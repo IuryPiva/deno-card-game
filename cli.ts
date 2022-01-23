@@ -56,24 +56,32 @@ export class CLIEngine {
       return this.loop();
     }
 
-    const option = await Select.prompt({
-      message: "",
-      prefix: "",
-      options: [
-        { name: "PLAY NEXT CARD", value: "play" },
-        { name: "SKIP TO GAME RESULTS", value: "skip" },
-      ],
-    });
+    if (!this.game.finished) {
+      const options = [];
 
-    if (option == "play") {
-      this.game.round();
-      this.draw(this.game.draw());
-      return this.loop();
-    }
+      if (this.game.roundsLeft) {
+        options.push({ name: "PLAY NEXT CARD", value: "play" });
+        options.push({ name: "SKIP TO GAME RESULTS", value: "skip" });
+      } else {
+        options.push({ name: "SHOW GAME RESULTS", value: "skip" });
+      }
 
-    if (option == "skip") {
-      const game = this.game;
-      this.game.fastForward(() => this.draw(game.draw()));
+      const option = await Select.prompt({
+        message: "",
+        prefix: "",
+        options,
+      });
+
+      if (option == "play") {
+        this.game.round();
+        this.draw(this.game.draw());
+        return this.loop();
+      }
+
+      if (option == "skip") {
+        const game = this.game;
+        this.game.fastForward(() => this.draw(game.draw()));
+      }
     }
   }
 }
