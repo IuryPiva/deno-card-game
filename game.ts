@@ -54,12 +54,15 @@ export class Game {
     });
   }
 
-  fastForward(cb: () => void) {
+  fastForward(callback = () => {}) {
     setTimeout(() => {
-      cb();
-      this.round();
-      if (!this.finished) this.fastForward(cb);
-    }, 100);
+      callback();
+
+      if (!this.finished) {
+        this.round();
+        this.fastForward(callback);
+      }
+    }, 50);
   }
 
   getWinnerCard(cards: Card[]): { card: Card; i: number } {
@@ -89,7 +92,16 @@ export class DrawableGame extends Game implements Drawable {
   declare players: DrawablePlayer[];
   declare cardsPlayedPerRound: DrawableCard[][];
 
-  lineLength: number;
+  minLineLength = 24;
+
+  get lineLength() {
+    return this.minLineLength;
+  }
+
+  set lineLength(value: number) {
+    this.minLineLength = Math.max(value, this.minLineLength);
+  }
+
   playerSpacer = "  ";
 
   constructor(
@@ -109,15 +121,14 @@ export class DrawableGame extends Game implements Drawable {
   }
 
   static drawTitle(lineLength = 0) {
-    const usableLength = lineLength > this.title.length
-      ? lineLength
-      : this.title.length;
-    const padLength = Math.floor((usableLength - this.title.length) / 2);
+    const rowLength = Math.max(lineLength, new this().minLineLength);
+    const padLength = Math.floor((rowLength - this.title.length) / 2);
 
     return [
-      Array(usableLength).fill("-").join(""),
+      Array(rowLength).fill("-").join(""),
       Array(padLength).fill(" ").concat(this.title).join(""),
-      Array(usableLength).fill("-").join(""),
+      Array(rowLength).fill("-").join(""),
+      "",
     ].join("\n");
   }
 
@@ -129,8 +140,15 @@ export class DrawableGame extends Game implements Drawable {
     const playerModels = this.players.map((player) => player.draw());
     const rows = this.PlayerType.sprite.model.split("\n");
 
+    const rowWidth =
+      Array.from(playerModels).map((_) => this.PlayerType.sprite.props.slot)
+        .join(this.playerSpacer).length;
+
+    const padLength = Math.floor((this.lineLength - rowWidth) / 2);
+    const padLeft = Array(padLength).fill(" ").join("");
+
     for (const row of rows.keys()) {
-      rows[row] = playerModels.map(
+      rows[row] = padLeft + playerModels.map(
         (p) => p.split("\n")[row],
       ).join(this.playerSpacer);
     }
@@ -138,11 +156,19 @@ export class DrawableGame extends Game implements Drawable {
     return rows.join("\n");
   }
 
+  private drawCardsPlayed() {
+    const cardsPlayed = this.cardsPlayedPerRound.pop();
+    if (!cardsPlayed) return "";
+
+    return cardsPlayed.map((card) => card.draw());
+  }
+
   drawRound() {
     return [
       this.drawTitle(),
       "",
       this.drawPlayers(),
+      this.drawCardsPlayed(),
       "",
       `Cards left: ${this.players[0].handSize}`,
     ].join(
@@ -156,7 +182,7 @@ export class DrawableGame extends Game implements Drawable {
       "",
       this.drawPlayers(),
       "",
-      `Cards left: ${this.players[0].handSize}`,
+      "P1 WINS!",
     ].join(
       "\n",
     );
