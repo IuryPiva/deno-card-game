@@ -25,7 +25,6 @@ Deno.test("Deck", () => {
     "Deck should have all 52 different cards.",
   );
 
-  const hand = deck.deal(1).next().value;
   deck.shuffle();
 
   assertEquals(
@@ -40,14 +39,17 @@ Deno.test("Deck", () => {
     "Deck should have all 52 different cards after shuffling.",
   );
 
+  const cards = [...deck.cards];
+  deck.shuffle();
+
   assertNotEquals(
-    hand,
-    deck.deal(1).next().value,
+    cards,
+    deck.cards,
     "Cards should be different after shuffling.",
   );
 
-
   for (let i = 1; i <= possibleCards.length; i++) {
+    const deck = new Deck();
     const dealer = deck.deal(i);
     const expectedHandSize = Math.floor(possibleCards.length / i);
     let playersDelt = 0;
@@ -65,4 +67,3 @@ Deno.test("Deck", () => {
     assertEquals(playersDelt, i, "Should create a hand for each player");
   }
 });
-

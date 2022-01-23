@@ -8,21 +8,22 @@ import { Player } from "./player.ts";
 
 Deno.test("Player", () => {
   const deck = new Deck();
+  const cardValues = deck.cards.map(v => v.value);
   const player = new Player(deck.deal(1).next().value);
 
   assertEquals(player.points, 0, "Players should start with 0 points");
 
   assertEquals(
-    deck.cards.map(v => v.value),
+    cardValues,
     player.showHand().map(v => v.value),
     "Players should keep the hands they are dealt",
   );
 
-  const cardOnTop = deck.cards.pop();
+  const cardOnTop = cardValues.pop();
   const playedCard = player.play();
 
   assertExists(playedCard, "Players should play a card when they have cards.");
-  assertEquals(playedCard.value, cardOnTop?.value, "Players should play the card on top");
+  assertEquals(playedCard.value, cardOnTop, "Players should play the card on top");
 
   const emptyHandedPlayer = new Player([]);
   const emptyCard = emptyHandedPlayer.play();
