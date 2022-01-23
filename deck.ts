@@ -45,7 +45,7 @@ export class DrawableCard extends Card implements DrawableModel {
 }
 
 export class Deck<CardType = Card> {
-  private cards: CardType[];
+  cards: CardType[];
 
   constructor(CardType?: new (value: number) => CardType) {
     const cards = Array.from({ length: 52 });
