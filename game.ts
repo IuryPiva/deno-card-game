@@ -72,6 +72,13 @@ export class Game {
     }, { i: -1, card: { value: 0 } });
   }
 
+  getWinnersNames() {
+    return this.players.map((player, i) => {
+      if (player.winner) return `P${i + 1}`;
+      return "";
+    }).filter(Boolean);
+  }
+
   finishGame() {
     this.finished = true;
 
@@ -159,9 +166,21 @@ export class DrawableGame extends Game implements Drawable {
     return rows.join("\n");
   }
 
-  private drawCardsPlayed() {
-    const cardsPlayed = this.cardsPlayedPerRound.pop();
+  private drawAllCardsPlayed() {
+    return this.cardsPlayedPerRound.map((cardsPlayed) =>
+      this.drawCardsPlayed(cardsPlayed, this.getWinnerCard(cardsPlayed).i)
+    ).join("\n");
+  }
 
+  /**
+   * @optionalParam cardsPlayed if none is specified will use last round's cards.
+   * @optionalParam winnerIndex highlight card on index
+   * @returns a card model for each player
+   */
+  private drawCardsPlayed(
+    cardsPlayed = this.cardsPlayedPerRound[this.cardsPlayedPerRound.length - 1],
+    winnerIndex = -1,
+  ) {
     if (!cardsPlayed) return "";
 
     const playerLength = this.PlayerType.sprite.props.slot.length;
@@ -169,8 +188,9 @@ export class DrawableGame extends Game implements Drawable {
     const padLength = Math.floor((playerLength - cardLength) / 2);
     const cardPadding = Array(padLength).fill(" ").join("");
 
-    const cardModels = cardsPlayed.map((card) =>
-      cardPadding + card.draw() + cardPadding
+    const cardModels = cardsPlayed.map((card, i) =>
+      cardPadding +
+      card.draw({ highlightWinnerCard: i == winnerIndex }) + cardPadding
     );
 
     const padLeft = this.calcPadLeft();
@@ -192,12 +212,19 @@ export class DrawableGame extends Game implements Drawable {
   }
 
   drawEndGameResults() {
+    const winners = this.getWinnersNames();
+
+    const gameResultMessage = winners.length == 1
+      ? `${winners.pop()} WINS!`
+      : `${winners.join(" ")} DRAW!`;
+
     return [
       this.drawTitle(),
-      "",
       this.drawPlayers(),
       "",
-      "P1 WINS!",
+      this.drawAllCardsPlayed(),
+      "",
+      gameResultMessage,
     ].join(
       "\n",
     );
