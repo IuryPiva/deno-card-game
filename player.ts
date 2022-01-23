@@ -42,7 +42,7 @@ export class Player {
   }
 
   handleGameLoss() {
-    this.mark = `⛈`;
+    this.mark = `⛈ `;
     this.reaction = `😭`;
   }
 }
