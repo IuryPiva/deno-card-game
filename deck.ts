@@ -44,12 +44,17 @@ export class DrawableCard extends Card implements DrawableModel {
   }
 }
 
-export class Deck<CardType extends Card> {
+export class Deck<CardType = Card> {
   private cards: CardType[];
 
-  constructor(CardClass: new (value: number) => CardType) {
-    this.cards = Array.from({ length: 52 })
-      .map((_, i) => new CardClass(i + 1));
+  constructor(CardType?: new (value: number) => CardType) {
+    const cards = Array.from({ length: 52 });
+
+    if (CardType) {
+      this.cards = cards.map((_, i) => new CardType(i + 1));
+    } else {
+      this.cards = cards.map((_, i) => new Card(i + 1) as unknown as CardType);
+    }
   }
 
   shuffle() {
