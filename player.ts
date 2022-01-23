@@ -6,6 +6,7 @@ export class Player {
   reaction = `😊`;
   mark = `  `;
   lastCardPlayed: Card | undefined;
+  winner = false;
 
   constructor(protected hand: Card[]) {}
 
@@ -37,6 +38,7 @@ export class Player {
   }
 
   handleGameVictory() {
+    this.winner = true;
     this.mark = `🎊`;
     this.reaction = `🤩`;
   }
