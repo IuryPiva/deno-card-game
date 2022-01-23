@@ -181,8 +181,8 @@ export class DrawableGame extends Game implements Drawable {
   drawRound() {
     return [
       this.drawTitle(),
-      "",
       this.drawPlayers(),
+      "",
       this.drawCardsPlayed(),
       "",
       `Cards left: ${this.players[0].handSize}`,

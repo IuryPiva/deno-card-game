@@ -58,6 +58,7 @@ export class DrawablePlayer extends Player implements DrawableModel {
 
     const model = [
       props.score,
+      "",
       props.mark,
       props.reaction,
     ].join("\n");
