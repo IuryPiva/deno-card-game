@@ -136,16 +136,19 @@ export class DrawableGame extends Game implements Drawable {
     return DrawableGame.drawTitle(this.lineLength);
   }
 
-  private drawPlayers() {
-    const playerModels = this.players.map((player) => player.draw());
-    const rows = this.PlayerType.sprite.model.split("\n");
-
+  private calcPadLeft() {
     const rowWidth =
-      Array.from(playerModels).map((_) => this.PlayerType.sprite.props.slot)
+      Array.from(this.players).map((_) => this.PlayerType.sprite.props.slot)
         .join(this.playerSpacer).length;
 
     const padLength = Math.floor((this.lineLength - rowWidth) / 2);
-    const padLeft = Array(padLength).fill(" ").join("");
+    return Array(padLength).fill(" ").join("");
+  }
+
+  private drawPlayers() {
+    const padLeft = this.calcPadLeft();
+    const playerModels = this.players.map((player) => player.draw());
+    const rows = this.PlayerType.sprite.model.split("\n");
 
     for (const row of rows.keys()) {
       rows[row] = padLeft + playerModels.map(
@@ -158,9 +161,21 @@ export class DrawableGame extends Game implements Drawable {
 
   private drawCardsPlayed() {
     const cardsPlayed = this.cardsPlayedPerRound.pop();
+
     if (!cardsPlayed) return "";
 
-    return cardsPlayed.map((card) => card.draw());
+    const playerLength = this.PlayerType.sprite.props.slot.length;
+    const cardLength = this.CardType.sprite.props.slot.length;
+    const padLength = Math.floor((playerLength - cardLength) / 2);
+    const cardPadding = Array(padLength).fill(" ").join("");
+
+    const cardModels = cardsPlayed.map((card) =>
+      cardPadding + card.draw() + cardPadding
+    );
+
+    const padLeft = this.calcPadLeft();
+
+    return padLeft + cardModels.join(this.playerSpacer);
   }
 
   drawRound() {
