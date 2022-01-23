@@ -45,35 +45,33 @@ export class DrawableCard extends Card implements DrawableModel {
 }
 
 export class Deck<CardType extends Card> {
-  cards: CardType[];
+  private cards: CardType[];
 
-  constructor(
-    CardType: new (value: number) => CardType,
-  ) {
+  constructor(CardClass: new (value: number) => CardType) {
     this.cards = Array.from({ length: 52 })
-      .map((_, i) => new CardType(i + 1));
+      .map((_, i) => new CardClass(i + 1));
   }
 
   shuffle() {
-    const deck = structuredClone(this.cards);
-    this.cards = [];
+    const deck: CardType[] = [];
 
-    while (deck.length) {
-      const index = Math.floor(Math.random() * deck.length);
-      this.cards.push(...deck.splice(index, 1));
+    while (this.cards.length) {
+      const index = Math.floor(Math.random() * this.cards.length);
+      deck.push(...this.cards.splice(index, 1));
     }
+
+    this.cards = deck;
   }
 
   *deal(playerCount = 2) {
-    const dealerDeck: CardType[] = structuredClone(this.cards);
     const handSize = Math.floor(this.cards.length / playerCount);
     let playersDelt = 0;
 
     while (playersDelt < playerCount) {
       playersDelt++;
-      yield dealerDeck.splice(0, handSize);
+      yield this.cards.splice(0, handSize);
     }
 
-    return dealerDeck.splice(0, handSize);
+    return this.cards.splice(0, handSize);
   }
 }
